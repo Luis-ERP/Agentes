@@ -1,0 +1,35 @@
+Reto
+El reto consiste en el desarrollo de una solución computacional capaz de atender un desastre/incidente de emergencia. en tres situaciones diferentes: 
+
+Un desastre/incidente donde no exista interacción de un jugador y los paramédicos lleguen a recorrer todo el lugar para identificar a todos los heridos.
+Un desastre/incidente donde exista interacción de un jugador para encontrar a los lesionados y su gravedad mientras los servicios médicos llegan.
+Múltiples desastres/incidentes donde exista interacción de un jugador donde decida cuál de ellos debe inspeccionar primero y pueda distribuir o solicitar los servicios de emergencia que crea necesario.
+
+Para ello, trabajaremos en el siguiente escenario:
+Primera cámara 
+Una vía de 3 carriles de 1 km de largo, sin ningún acceso lateral y con edificios alrededor.
+En esta vía sólo transitan vehículos clasificados como de transporte particular o mercantil de pasajeros que no exceda de 5 asientos.
+La velocidad máxima en todos los carriles será de 60 km/h.
+Los vehículos empiezan en un carril aleatorio a la velocidad máxima permitida y, a menos que exista un problema en su ruta, permanecen en ese carril con aceleración constante. Ningún vehículo podrá tener un comportamiento errático.
+En todo momento, un vehículo conoce la posición de los vehículos que lo rodean. 
+Por ningún motivo, un vehículo puede colisionar con otro. 
+Durante la llegada de servicios de emergencia se deberá observar como llegan al escenario.
+La duración del escenario será de 5 minutos. En algún momento, después de 1 minuto, una situación de emergencia (derrumbe) se presenta.
+Uno de los vehículos del tráfico deberá comunicar al sistema de emergencia el incidente, quienes envían de manera preventiva 1 unidad de servicios paramédicos y un policía (puede ser un dron terrestre) para verificar el incidente. En el caso de la 3era situación suceden múltiples desastres.
+En el caso de la 3era situación se deberá aplicar una estrategia de cuántas unidades previas se mandan a cada uno de los desastres. (No hay unidades ilimitadas)
+Segunda Cámara (atención al desastre):
+Primera situación: vista del incidente donde se ve llegar a los paramédicos, sin previo conocimiento del lugar y tienen que recorrer todo el lugar para identificar a los heridos y su gravedad.
+Segunda situación: vista del incidente donde el policía, que es el jugador, debe ubicar a la mayor cantidad de personas heridas que pueda e identificar su gravedad para ser atendido en tiempo máximo de 1 minuto que es lo que tardarán en llegar los servicios de emergencia. Una vez terminado el tiempo se deberá ver la entrada de los paramédicos para salvar a los pacientes utilizando la información que el policía les comunicó con anterioridad.
+Tercera situación: seleccionar alguno de los desastres que se va a atender y realizar las mismas tareas de la segunda situación como jugador.
+Cada unidad de servicios médicos cuenta con 2 paramédicos.
+Los paramédicos si trabajan en equipo (2 personas) tardan 15 segundos en salvar a un paciente, en caso de hacerlo individual tardan 30 segundos.
+
+
+Tu solución computacional deberá contar con:
+Una arquitectura multi agentes que indique las características y comportamientos de todos los agentes involucrados.
+Un mecanismo para generar 1 o múltiples desastres en la zona urbana.
+Un mecanismo para notificar al centro de emergencias de la situación.
+Un mecanismo que permita avisar a los conductores sobre los servicios de emergencia y que los deje pasar para llegar a la situación de emergencia.
+Una interacción de un jugador puede determinar la gravedad de las lesiones de los pacientes, la cantidad y el tiempo de vida restante para priorizar su atención.
+Un algoritmo que permite al jugador comunicar a los servicios de emergencia la ubicación de los lesionados en orden de gravedad para optimizar la ayuda. En caso de ser necesario debe comunicar que se requieren más servicios de emergencia.
+Documentar los resultados obtenidos de los 3 escenarios aplicados y dar una conclusión sobre las ventajas desventajas del algoritmo utilizado.
