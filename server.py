@@ -36,3 +36,13 @@ def run(server_class=HTTPServer, handler_class=Server, port=8585):
 
 if __name__ == '__main__':
     run()
+
+""" 
+[
+    {
+        "id": "23423",
+        "pos": [0,1],
+        "display": True
+    },
+] 
+"""
