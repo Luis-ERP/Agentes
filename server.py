@@ -42,6 +42,7 @@ if __name__ == '__main__':
     {
         "id": "23423",
         "pos": [0,1],
+        "type": "rescatista"
         "display": True
     },
 ] 
