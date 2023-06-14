@@ -2,7 +2,8 @@ from mesa import Agent, Model
 from mesa.space import MultiGrid
 from mesa.time import RandomActivation
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+import matplotlib as mpl
+import matplotlib.colors as mcolors
 import random
 import numpy as np
 
@@ -52,20 +53,37 @@ class RescueAgent(Agent):
 
     def step(self):
         victim = self.is_victim_at_current_position()
+        
         if self.mode == "searching":
+            y, x = self.pos
+            self.model.cells[y][x] += 1
+
             if victim:
                 victim.follow = self
                 self.mode = "guiding"
             else:
-                empty_cells = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False)
-                new_position = random.choice(empty_cells)
+                close_victims = self.model.grid.get_neighbors(self.pos, moore=True, include_center=False,
+                                                      radius=self.visibility_radio)
+                close_victims = list(filter(lambda agent: agent.type=="victim" and agent.follow==None, close_victims))
+                if close_victims:
+                    cells = [agent.pos for agent in close_victims] 
+                else:
+                    cells = self.model.grid.get_neighborhood(self.pos, moore=True, include_center=False)
+                try:
+                    cells_heat_map = [self.model.cells[n][m] for n, m in cells ]
+                except Exception as e:
+                    print(cells)
+                    raise e
+                cell_choices = list(zip(cells_heat_map, cells))
+                cell_choices.sort(key=lambda c: c[0])
+                new_position = cell_choices[0][1]
                 self.model.grid.move_agent(self, new_position)
 
         elif self.mode == "guiding" and not self.in_exit():
             new_x, new_y = self.pos
-            if self.pos[0] < len(self.model.grid[0])-1:
+            if self.pos[0] < self.model.WIDTH-1: # X
                 new_x += 1
-            if self.pos[1] > 0:
+            if self.pos[1] > 0: # Y
                 new_y -= 1
             self.model.grid.move_agent(self, (new_x, new_y))
             
@@ -75,12 +93,13 @@ class RescueAgent(Agent):
 
 class Warehouse(Model):
     WIDTH, HEIGHT = 30, 50
-    EXIT_CELLS =  [(28,0), (29,0)] #[(4,0), (3,0)] #
+    EXIT_CELLS = [(28,0), (29,0)] # [(4,0), (3,0)]
     RESCUERS = 10
     VICTIMS = 50
 
     def __init__(self):
         self.grid = MultiGrid(self.WIDTH, self.HEIGHT, torus=False)
+        self.cells = np.zeros((self.WIDTH, self.HEIGHT))
         self.schedule = RandomActivation(self)
 
         # Place victim agents
@@ -91,8 +110,9 @@ class Warehouse(Model):
             self.schedule.add(agent)
 
         # Place rescuer agents
-        for _ in range(self.RESCUERS):
-            agent = RescueAgent(self)
+        for i in range(self.RESCUERS):
+            visibility = 1 if i > 2 else 2
+            agent = RescueAgent(self, visibility_radio=visibility)
             self.grid.place_agent(agent, self.EXIT_CELLS[-1])
             self.schedule.add(agent)
 
@@ -111,37 +131,54 @@ class Warehouse(Model):
         return serialized_agents
     
     def convert_to_plot_matrix(self):
-        matrix = [[0 for m in range(self.WIDTH)] for n in range(self.HEIGHT)]
+        from pprint import pprint
+        matrix = [[0 for m in range(self.HEIGHT)] for n in range(self.WIDTH)]
         for m, n in self.EXIT_CELLS:
-            matrix[n][m] = 2
+            matrix[n][m] = -1
+
+        for n in range(len(self.cells)):
+            for m in range(len(self.cells[n])):
+                matrix[n][m] = self.cells[n][m]
 
         for agents, m, n in self.grid.coord_iter():
             for agent in agents:
-                x, y = agent.pos
+                y, x = agent.pos
                 if agent.type == 'victim':
-                    matrix[y][x] = -1
+                    matrix[y][x] = -2
                 elif agent.type == 'rescuer':
-                    if agent.mode == 'guiding':
-                        matrix[y][x] = 3
-                    else:
-                        matrix[y][x] = 1
+                    if agent.mode == 'searching':
+                        matrix[y][x] = -3
+                    elif agent.mode == 'guiding':
+                        matrix[y][x] = -4
         
         return matrix
 
     def animate(self):
         matrix = np.array(self.convert_to_plot_matrix())
         # Define colormap
-        cmap = plt.cm.colors.ListedColormap(['blue', 'white', 'black', 'red', 'gray'])
-        bounds = [-1.5, -0.5, 0.5, 1.5, 2.5, 3.5]  # Bounds for each color
-        norm = plt.cm.colors.BoundaryNorm(bounds, cmap.N)
+        colors = ['gray', 'black', 'blue', 'red', 'white']
+        green_colormap = mpl.colormaps['Greens']
 
+        cmap_list = []
+        # Add colors for values -4 to 0
+        for color in colors:
+            cmap_list.append(mcolors.to_rgba(color))
+        
+        # Add colors for values 1 to 255 using the sequential greens colormap
+        for i in range(1, 256):
+            rgba = green_colormap(i)
+            cmap_list.append((rgba[0], rgba[1], rgba[2], rgba[3]))
+        
+        custom_cmap = mcolors.ListedColormap(cmap_list)
+        bounds = [-4.5, -3.5, -2.5, -1.5, -0.5, 0.5] + [1.5*c for c in range(6, len(cmap_list))]
+        norm = mcolors.BoundaryNorm(bounds, custom_cmap.N)
+        
         # Plot the grid
-        plt.imshow(matrix, cmap=cmap, norm=norm, interpolation='none')
+        plt.imshow(matrix, cmap=custom_cmap, norm=norm, interpolation='none')
         plt.grid(True, which='both', color='black', linewidth=0.5)
         plt.xticks(np.arange(0, matrix.shape[1], 1)-0.5)
         plt.yticks(np.arange(0, matrix.shape[0], 1)-0.5)
-        plt.pause(0.2)
-
+        plt.pause(0.7)
 
     def step(self) -> list:
         self.schedule.step()
