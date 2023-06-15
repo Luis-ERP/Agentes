@@ -106,7 +106,7 @@ class RescueAgent(Agent):
     
 
 class Warehouse(Model):
-    WIDTH, HEIGHT = 30, 50
+    WIDTH, HEIGHT = 50, 30
     EXIT_CELLS =  [(WIDTH-2, HEIGHT-1), (WIDTH-1, HEIGHT-1)]
     RESCUERS = 10
     VICTIMS = 25
