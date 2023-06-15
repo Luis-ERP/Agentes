@@ -106,10 +106,10 @@ class RescueAgent(Agent):
     
 
 class Warehouse(Model):
-    WIDTH, HEIGHT = 10, 10 #30, 50
+    WIDTH, HEIGHT = 30, 50
     EXIT_CELLS =  [(WIDTH-2, HEIGHT-1), (WIDTH-1, HEIGHT-1)]
-    RESCUERS = 3
-    VICTIMS = 10
+    RESCUERS = 10
+    VICTIMS = 25
 
     def __init__(self):
         self.grid = MultiGrid(self.WIDTH, self.HEIGHT, torus=False)
@@ -139,7 +139,8 @@ class Warehouse(Model):
                 continue
             serialized_agent = {
                 "id": agent.unique_id,
-                "position": list(agent.pos),
+                "posX": agent.pos[0],
+                "posY": -1 * agent.pos[1],
                 "type": agent.type
             }
             serialized_agents.append(serialized_agent)
